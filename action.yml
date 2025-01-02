@@ -1,13 +1,6 @@
 name: 'Vitalik Action'
 description: 'The updater'
 
-inputs:
-  pr_branch:
-    description: |
-      PR branch.
-      Default 'package-lock'
-    default: 'package-lock'
-
 runs:
   using: 'composite'
   steps:
@@ -48,27 +41,7 @@ runs:
       if: steps.modified-files.outputs.list == 'package-lock.json'
       shell: bash
       run: |
-        git checkout -b ${{ inputs.pr_branch }}
-        git push -f https://${{ github.token }}@github.com/${{ github.repository }}.git ${{ inputs.pr_branch }}
-
-    - id: pr-state
-      name: Check PR
-      shell: bash
-      if: steps.modified-files.outputs.list == 'package-lock.json'
-      run: |
-        echo "state=$( gh pr view ${{ inputs.pr_branch }} --json state --jq .state || echo "ABSENT" )" >> "$GITHUB_OUTPUT"
-      env:
-        GH_TOKEN: ${{ github.token }}
-
-    - name: Create PR
-      if: >
-        steps.modified-files.outputs.list == 'package-lock.json'
-        && steps.pr-state.outputs.state != 'OPEN'
-      shell: bash
-      run: |
-        gh pr create --fill --base ${{ github.ref_name }} --head ${{ inputs.pr_branch }}
-      env:
-        GH_TOKEN: ${{ github.token }}
+        git push https://${{ github.token }}@github.com/${{ github.repository }}.git
 
 branding:
   icon: 'lock'
